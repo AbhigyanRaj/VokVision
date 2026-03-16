@@ -1,5 +1,5 @@
 import { Twilio } from 'twilio';
-import { config } from '../config';
+import { config } from '../../shared/config';
 
 class TwilioService {
     private client: Twilio;

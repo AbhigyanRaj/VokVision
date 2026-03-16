@@ -43,6 +43,14 @@ dependencies:
   pinput: ^6.0.2
   smart_auth: ^3.2.0
   dio: ^5.9.1
+  camera: ^0.11.4
+  path_provider: ^2.1.5
+  sensors_plus: ^7.0.0
+  vibration: ^3.1.7
+  native_device_orientation: ^2.1.0
+  firebase_core: ^3.1.0
+  firebase_messaging: ^15.0.0
+  path: ^1.9.0
 
 dev_dependencies:
   flutter_test:

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { twilioService } from '../../services/twilio.service';
-import { config } from '../../config';
+import { twilioService } from './twilio.service';
+import { config } from '../../shared/config';
 
 export class AuthController {
     /**
@@ -9,15 +9,19 @@ export class AuthController {
      */
     static async requestOtp(req: Request, res: Response) {
         const { phoneNumber } = req.body;
+        console.log(`Received OTP request for phone: ${phoneNumber}`);
 
         if (!phoneNumber) {
+            console.log('OTP Request failed: Phone number missing');
             return res.status(400).json({ message: 'Phone number is required' });
         }
 
         try {
             await twilioService.sendVerificationCode(phoneNumber);
+            console.log(`OTP sent successfully to: ${phoneNumber}`);
             return res.status(200).json({ message: 'OTP sent successfully' });
         } catch (error: any) {
+            console.error(`OTP Request error for ${phoneNumber}:`, error.message);
             return res.status(500).json({ message: error.message });
         }
     }

@@ -5,6 +5,7 @@ import '../features/onboarding/presentation/splash_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
 import '../features/authentication/presentation/auth_screen.dart';
 import '../features/home/presentation/home_screen.dart';
+import '../features/capture/presentation/capture_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -47,6 +48,31 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/home',
         builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: '/capture',
+        pageBuilder: (context, state) {
+          final projectName = state.extra as String? ?? 'New Project';
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: CaptureScreen(projectName: projectName),
+            transitionDuration: const Duration(milliseconds: 600),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 1), // Slide from bottom
+                  end: Offset.zero,
+                ).animate(
+                  CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutCubic,
+                  ),
+                ),
+                child: child,
+              );
+            },
+          );
+        },
       ),
     ],
   );
