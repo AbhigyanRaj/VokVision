@@ -45,3 +45,7 @@ root/
             ├── ai_editor/
             └── storage/
 ```
+Note: "the output folder is not present in any of the folder (which is not necessary) but while running it locally on the system the output folder should be created to store the output.
+also there is 1 .pth file which is not uploaded here (due to size constarints over 100 MB) used for checkpoints in mast3r:
+MASt3R_ViTLarge_BaseDecoder_512_catmlpdpt_metric.pth
+
