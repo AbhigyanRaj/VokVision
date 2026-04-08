@@ -113,7 +113,19 @@ def run_pipeline(job_id):
         raise RuntimeError("Dataset conversion failed.")
 
     # ==============================
-    # STEP 3 — Train Gaussian Splatting
+    # STEP 3 — Automated Segmentation (Innovation)
+    # ==============================
+    segment_command = [
+        "python",
+        "segmentation.py",
+        job_id,
+        dataset_output
+    ]
+
+    run_command(segment_command, "SAM 2 Automated Object Isolation")
+
+    # ==============================
+    # STEP 4 — Train Gaussian Splatting
     # ==============================
 
     gaussian_command = [
