@@ -1,0 +1,42 @@
+\begin{thebibliography}{6}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Kerbl et~al.(2023)Kerbl, Kopanas, Leimkuhler, and Drettakis]{3dgs}
+Bernhard Kerbl, Georgios Kopanas, Thomas Leimkuhler, and George Drettakis.
+\newblock 3d gaussian splatting for real-time radiance field rendering.
+\newblock In \emph{ACM Transactions on Graphics (SIGGRAPH)}, 2023.
+
+\bibitem[Kirillov et~al.(2023)Kirillov, Mintun, Ravi, et~al.]{sam}
+Alexander Kirillov, Eric Mintun, Nikhila Ravi, et~al.
+\newblock Segment anything.
+\newblock In \emph{International Conference on Computer Vision (ICCV)}, 2023.
+
+\bibitem[Laba et~al.(2024)Laba, Wang, et~al.]{mast3r}
+Martin Laba, Yiming Wang, et~al.
+\newblock Mast3r: Grounding image matching in 3d.
+\newblock \emph{arXiv preprint arXiv:2406.09756}, 2024.
+
+\bibitem[Mildenhall et~al.(2021)Mildenhall, Srinivasan, Tancik, Barron,
+  Ramamoorthi, and Ng]{nerf}
+Ben Mildenhall, Pratul~P. Srinivasan, Matthew Tancik, Jonathan~T. Barron, Ravi
+  Ramamoorthi, and Ren Ng.
+\newblock Nerf: Representing scenes as neural radiance fields for view
+  synthesis.
+\newblock \emph{Communications of the ACM}, 2021.
+
+\bibitem[Schonberger and Frahm(2016)]{colmap}
+Johannes~L. Schonberger and Jan-Michael Frahm.
+\newblock Structure-from-motion revisited.
+\newblock In \emph{Conference on Computer Vision and Pattern Recognition
+  (CVPR)}, 2016.
+
+\bibitem[Wang et~al.(2023)Wang, Ducor, Wang, et~al.]{dust3r}
+Shuzhe Wang, C{\'e}sar Ducor, Yiming Wang, et~al.
+\newblock Dust3r: Geometric 3d vision made easy.
+\newblock \emph{arXiv preprint arXiv:2312.14132}, 2023.
+
+\end{thebibliography}

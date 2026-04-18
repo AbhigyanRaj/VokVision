@@ -1,0 +1,249 @@
+\documentclass[aspectratio=169]{beamer}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+\setbeamertemplate{navigation symbols}{}
+
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{array}
+
+\title[VokVision Interim]{VokVision: Interim Presentation}
+\subtitle{Monocular Multi-view 3D Reconstruction Pipeline}
+\author{Abhigyan Raj \and Mantavya Kaushik \and Shubhi Jain}
+\institute{Engineering Track}
+\date{April 2026}
+
+\begin{document}
+
+% Slide 1
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% Slide 2
+\begin{frame}{1) Problem Statement, Scope, and Users}
+\textbf{Problem}\
+Build an end-to-end system where users capture multi-view RGB photos and receive a downloadable 3D model.
+
+\vspace{0.5em}
+\textbf{Input}\
+Monocular image set (JPEG/PNG) captured from multiple viewpoints.
+
+\vspace{0.5em}
+\textbf{Output}\
+Reconstructed artifact exported as \texttt{point\_cloud.ply} (and Gaussian model artifacts).
+
+\vspace{0.5em}
+\textbf{Target Users}\
+Students, creators, and rapid-prototyping teams needing capture-to-3D without specialized sensors.
+
+\vspace{0.5em}
+\textbf{Current Scope}\
+\begin{itemize}
+  \item Mobile capture + backend asynchronous reconstruction.
+  \item Monocular-only; quality depends on viewpoint coverage.
+  \item Object isolation works with automatic fallback if SAM2 is unavailable.
+\end{itemize}
+\end{frame}
+
+% Slide 3
+\begin{frame}{2) Related Work and Baselines (I)}
+\textbf{Classical Geometry Baseline: COLMAP-style SfM}
+\begin{itemize}
+  \item Strength: robust camera pose + sparse geometry on many datasets.
+  \item Method gap: feature matching can fail on low-texture / repetitive regions.
+  \item Method gap: hand-crafted matching + geometric verification can be brittle under motion blur.
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{Neural View Synthesis Baseline: NeRF}
+\begin{itemize}
+  \item Strength: high-fidelity novel-view synthesis.
+  \item Method gap: slow training/inference for interactive product workflows.
+  \item Method gap: optimization can be unstable when capture viewpoints are sparse/non-uniform.
+\end{itemize}
+\end{frame}
+
+% Slide 4
+\begin{frame}{2) Related Work and Baselines (II)}
+\textbf{Modern 3D Priors: DUSt3R / MASt3R}
+\begin{itemize}
+  \item Key idea: infer geometry/matching directly in 3D rather than only 2D descriptors.
+  \item Strength: better scene-level geometric grounding for challenging correspondence.
+  \item Method gap: quality still sensitive to image coverage and camera path diversity.
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{Rendering Baseline: 3D Gaussian Splatting}
+\begin{itemize}
+  \item Key idea: explicit Gaussian primitives for faster rendering than NeRF.
+  \item Strength: near real-time rendering after training.
+  \item Method gap: densification/opacity heuristics can be scene-sensitive and error-prone.
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{Chosen baselines for this project}
+\begin{itemize}
+  \item COLMAP-style SfM
+  \item NeRF-style neural rendering
+  \item 3D Gaussian Splatting target pipeline
+\end{itemize}
+\end{frame}
+
+% Slide 5
+\begin{frame}{3) Dataset and Evaluation Metrics}
+\textbf{Dataset snapshot (current interim experiments)}
+\begin{itemize}
+  \item Latest validated run: 22 JPEG images (project: \texttt{test\_project\_001}).
+  \item Workspace assets: \texttt{gs\_dataset/images} and \texttt{gs\_dataset/sparse}.
+  \item Practical issue: small internal set, limited diversity across devices/scenes.
+\end{itemize}
+
+\vspace{0.4em}
+\textbf{Evaluation Metrics}
+\begin{itemize}
+  \item Reconstruction quality: PSNR, SSIM, LPIPS.
+  \item Geometry quality: Chamfer distance / completeness (when GT available).
+  \item System metrics: end-to-end runtime, GPU VRAM, CPU RAM, storage footprint.
+  \item Product metrics: successful job rate, average time-to-result, API error rate.
+\end{itemize}
+
+\vspace{0.4em}
+\textbf{Resource relevance}
+GPU memory and storage throughput are the dominant constraints.
+\end{frame}
+
+% Slide 6
+\begin{frame}{4) System Overview and Current Implementation}
+\textbf{Current end-to-end pipeline}
+\begin{enumerate}
+  \item Flutter app captures and uploads image set.
+  \item FastAPI receives files and starts background job.
+  \item Stage 1: MASt3R mapping (poses + geometry).
+  \item Stage 2: object point-cloud isolation (SAM2 or fallback) + dataset prep.
+  \item Stage 3: OpenSplat training and model export.
+\end{enumerate}
+
+\vspace{0.5em}
+\textbf{Completed components}
+\begin{itemize}
+  \item Upload/status/download API flow.
+  \item Pipeline shell with stage orchestration.
+  \item Integration of MASt3R, isolation stage, and OpenSplat codebases.
+\end{itemize}
+\end{frame}
+
+% Slide 7
+\begin{frame}{4) Baseline Results and Status Analysis}
+\textbf{Module-wise interim status}
+\begin{table}[h]
+\centering
+\begin{tabular}{p{2.8cm}p{4.8cm}}
+\toprule
+Module & Interim status \\
+\midrule
+Local orchestration & Functional (22 images, 2500 iterations) \\
+MASt3R Stage & Completed (2,181,208 pts written) \\
+Isolation Stage & Completed (final 8,294 clean pts) \\
+OpenSplat Stage & Completed (2500 steps) \\
+Output artifact & Generated: \texttt{model.ply} (934.2 KB) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Observation}
+Current bottlenecks are environment/dependency robustness and benchmark depth, not core pipeline completion.
+\end{frame}
+
+% Slide 8
+\begin{frame}{4) Error Analysis, Failure Cases, and Insights}
+\textbf{Observed failure modes}
+\begin{itemize}
+  \item VLM branch skipped because \texttt{GEMINI\_API\_KEY} was missing.
+  \item SAM2 module unavailable, forcing GrabCut+HSV fallback segmentation.
+  \item MASt3R used slow RoPE2D PyTorch fallback (missing CUDA-compiled extension).
+  \item HF Hub requests unauthenticated (no \texttt{HF\_TOKEN}), affecting reliability under load.
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{Likely causes (method + system)}
+\begin{itemize}
+  \item Methodology: segmentation quality is sensitive when fallback replaces learned masks.
+  \item System: optional runtime dependencies and tokens are not validated pre-run.
+  \item System: coarse status reporting still slows root-cause diagnosis.
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{Engineering implication}
+Need strict preflight checks, richer telemetry, and reproducible environment locking.
+\end{frame}
+
+% Slide 9
+\begin{frame}{5) Individual Contributions So Far}
+\textbf{Abhigyan Raj}
+\begin{itemize}
+  \item Core reconstruction integration work and pipeline-level debugging.
+\end{itemize}
+
+\textbf{Mantavya Kaushik}
+\begin{itemize}
+  \item Backend/API orchestration and stage execution path setup.
+\end{itemize}
+
+\textbf{Shubhi Jain}
+\begin{itemize}
+  \item Workflow validation, reporting, and integration/testing coordination.
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{Team-level completed milestone}
+Interim end-to-end architecture assembled, with clear blocker localization.
+\end{frame}
+
+% Slide 10
+\begin{frame}{5-6) Next Steps, Task Assignment, and Demo Plan}
+\textbf{Next steps (near-term)}
+\begin{itemize}
+  \item Wire this successful local config into API-triggered production path.
+  \item Add explicit job states: queued/running/failed/succeeded.
+  \item Add metric logging for runtime, memory, and quality.
+  \item Add preflight checks for keys/modules (GEMINI\_API\_KEY, HF\_TOKEN, SAM2).
+  \item Expand dataset diversity for stronger EDA and stress tests.
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{Future ownership}
+\begin{itemize}
+  \item Abhigyan Raj: reconstruction-core fixes + quality analysis.
+  \item Mantavya Kaushik: backend reliability + status/error API enrichment.
+  \item Shubhi Jain: experimental protocol, result synthesis, and presentation/demo flow.
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{Demo plan}
+Run a 22-image job, show stage-wise logs, and download/render the generated \texttt{model.ply}.
+\end{frame}
+
+% Backup slides
+\appendix
+
+\begin{frame}{Backup: Compute Requirements}
+\begin{itemize}
+  \item GPU: CUDA-capable, preferably at least 12GB VRAM.
+  \item CPU RAM: 16--32GB recommended.
+  \item Storage: SSD required for I/O-heavy training workflow.
+  \item Operational need: queue-based scheduling for multi-user load.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Backup: Known Technical Debt}
+\begin{itemize}
+  \item Optional dependencies/tokens are not enforced before run start.
+  \item Coarse status model (no explicit failed state).
+  \item Deprecated package/runtime warnings (\texttt{google.generativeai}, Python 3.10 horizon).
+  \item Missing CUDA-compiled RoPE2D extension causes slower MASt3R execution.
+\end{itemize}
+\end{frame}
+
+\end{document}
